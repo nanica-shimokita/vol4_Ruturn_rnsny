@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>運営管理ページ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+        .hint-row { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .switch { position: relative; display: inline-block; width: 60px; height: 34px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        input:checked + .slider { background-color: #28a745; }
+        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider:before { transform: translateX(26px); }
+        .btn-update { width: 100%; padding: 20px; background: #007bff; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; margin-top: 20px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>ヒント解放スイッチ</h1>
+    <div id="controls">読み込み中...</div>
+    <button class="btn-update" onclick="submitChanges()">設定を反映する</button>
+
+    <script>
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzLNggzyYB7vr6hATpu3hReKFO3RLMwttZQ71Tle_1hLNaIBYA-UpBixyAOoinshPy6pA/exec';
+        let currentData = [];
+
+        async function loadStatus() {
+            const res = await fetch(GAS_URL);
+            currentData = await res.json();
+            const container = document.getElementById('controls');
+            container.innerHTML = currentData.map((item, i) => `
+                <div class="hint-row">
+                    <span>${item.name}</span>
+                    <label class="switch">
+                        <input type="checkbox" id="check-${i}" ${item.status ? 'checked' : ''}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            `).join('');
+        }
+
+        async function submitChanges() {
+            const updates = currentData.map((item, i) => ({
+                name: item.name,
+                status: document.getElementById(`check-${i}`).checked
+            }));
+            
+            if(!confirm('サイトを更新しますか？')) return;
+
+            const btn = document.querySelector('.btn-update');
+            btn.innerText = '更新中...（約30秒）';
+            btn.disabled = true;
+
+            await fetch(GAS_URL, {
+                method: 'POST',
+                body: JSON.stringify({ updates: updates })
+            });
+
+            alert('更新完了！参加者の画面が順次切り替わります。');
+            location.reload();
+        }
+
+        loadStatus();
+    </script>
+</body>
+</html>
