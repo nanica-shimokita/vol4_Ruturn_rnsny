@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Return from Wonderland　ヒント</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Return from Wonderland ヒント">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <style>
+      .reload-container { position: absolute; top: 15px; right: 15px; z-index: 100; }
+      .reload-button { background: #fff; border: 1px solid #ccc; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #666; padding: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+      .reload-button:active { background-color: #eee; transform: rotate(90deg); transition: 0.2s; }
+      .accordion.is-locked { display: none !important; }
+    </style>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function() { navigator.serviceWorker.register("./sw.js"); });
+      }
+      function reloadPage() { location.reload(true); }
+
+      async function checkAutoUnlock() {
+        try {
+          const response = await fetch("./status.json?t=" + Date.now() + "&nc=" + Math.random());
+          if (!response.ok) return;
+          const statusMap = await response.json();
+          document.querySelectorAll(".accordion.is-locked").forEach(acc => {
+            const nameSpan = acc.querySelector(".hint-name");
+            if (!nameSpan) return;
+            const cleanName = nameSpan.innerText.trim();
+            if (statusMap[cleanName] === true) {
+              acc.classList.remove("is-locked");
+            }
+          });
+        } catch (e) { console.error("Update check failed", e); }
+      }
+      setInterval(checkAutoUnlock, 5000);
+    </script>
+</head>
+<body>
+    <div class="container" style="position: relative;">
+        <div id="start-screen">
+            <h1>Return from Wonderland</h1>
+            <p>チームメンバー全員の合意を得てから読み進めましょう。</p>
+            <button id="show-hint-button">ヒントを見る</button>
+        </div>
+        <div id="hint-content" style="display: none;">
+            <div class="reload-container">
+              <button class="reload-button" onclick="reloadPage()" title="再読み込み">↻</button>
+            </div>
+            <h1>Return from Wonderland　ヒント</h1>
+            <div class="hint-time-guidelines">
+                <p class="guideline-heading">ヒントが表示されない場合は右上リロードボタンを押してください</p>
+            </div>
+            <div class="accordion is-locked level-1"><div class="accordion-header"><span class="hint-name">STEP1</span></div><div class="accordion-content"><div class="hint-body"><p>いえーい</p></div></div></div>
+<div class="accordion is-locked level-1"><div class="accordion-header"><span class="hint-name">STEP2</span></div><div class="accordion-content"><div class="hint-body"><p></p></div></div></div>
+<div class="accordion is-locked level-1"><div class="accordion-header"><span class="hint-name">STEP3</span></div><div class="accordion-content"><div class="hint-body"><p></p></div></div></div>
+<div class="accordion is-locked level-1"><div class="accordion-header"><span class="hint-name">STEP4</span></div><div class="accordion-content"><div class="hint-body"><p></p></div></div></div>
+<div class="accordion is-locked level-1"><div class="accordion-header"><span class="hint-name">STEP5</span></div><div class="accordion-content"><div class="hint-body"><p></p></div></div></div>
+<div class="accordion is-locked level-1"><div class="accordion-header"><span class="hint-name">STEP6</span></div><div class="accordion-content"><div class="hint-body"><p></p></div></div></div>
+
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
