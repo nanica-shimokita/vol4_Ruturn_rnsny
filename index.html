@@ -24,16 +24,19 @@
 
       async function checkAutoUnlock() {
         try {
-          const response = await fetch("./status.json?t=" + Date.now() + "&nc=" + Math.random());
+          // GASのdoGetから直接ステータスを取得（即時反映用）
+          const response = await fetch("https://script.google.com/a/hgms.jp/macros/s/AKfycbxUTf---pepS-RQ5Pee1bRqc1UnVArizc0Wn0aT-nw/dev?t=" + Date.now());
           if (!response.ok) return;
-          const statusMap = await response.json();
-          document.querySelectorAll(".accordion.is-locked").forEach(acc => {
-            const nameSpan = acc.querySelector(".hint-name");
-            if (!nameSpan) return;
-            const cleanName = nameSpan.innerText.trim();
-            if (statusMap[cleanName] === true) {
-              acc.classList.remove("is-locked");
-            }
+          const statusList = await response.json();
+          
+          // 全アコーディオンに対して公開状態を反映
+          statusList.forEach(item => {
+            document.querySelectorAll(".accordion.is-locked").forEach(acc => {
+              const nameSpan = acc.querySelector(".hint-name");
+              if (nameSpan && nameSpan.innerText.trim() === item.name) {
+                if (item.status === true) acc.classList.remove("is-locked");
+              }
+            });
           });
         } catch (e) { console.error("Update check failed", e); }
       }
